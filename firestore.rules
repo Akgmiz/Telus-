@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - email: string (required) - The user's email address.
+    //   - isActive: boolean (required) - Whether the user's account is active.
+    //   - role: string (required, enum: ['admin', 'user']) - The user's role.
+    //   - createdAt: timestamp (optional) - When the user account was created.
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isManager() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'editor'] ||
+          (request.auth.token.email == "anuj06993@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['email', 'isActive', 'role']) &&
+             data.email is string &&
+             data.isActive is bool &&
+             data.role in ['admin', 'editor', 'viewer', 'user'];
+    }
+
+    // ===============================================================
+    // Collection: users
+    // ===============================================================
+    match /users/{userId} {
+      // Allow users to read their own profile or managers to read all
+      allow read: if isOwner(userId) || isManager();
+      
+      // Allow users to create their own profile on signup
+      // But they can only set role to 'user' and isActive to true (or as defined by app logic)
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && 
+                      (request.resource.data.role == 'user' || isManager());
+      
+      // Allow users to update their own profile (but not their role or isActive status)
+      // Allow manager to update anything
+      allow update: if (isOwner(userId) && isValidUser(request.resource.data) && 
+                        request.resource.data.role == resource.data.role && 
+                        request.resource.data.isActive == resource.data.isActive) || 
+                      isManager();
+      
+      // Allow manager to delete users
+      allow delete: if isManager();
+    }
+  }
+}

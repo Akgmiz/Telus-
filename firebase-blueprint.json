@@ -1,0 +1,37 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "A user of the application, including their CA status.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether the user's account is active."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "editor", "viewer", "user"],
+          "description": "The user's role in the application."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the user account was created."
+        }
+      },
+      "required": ["email", "isActive", "role"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "The collection of users."
+    }
+  }
+}

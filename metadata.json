@@ -1,0 +1,5 @@
+{
+  "name": "Telus Digital",
+  "description": "B2B SaaS for automated invoice processing and Tally ERP 9 XML generation using AWS Textract.",
+  "requestFramePermissions": []
+}
