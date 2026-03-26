@@ -616,7 +616,28 @@ export default function App() {
       </header>
 
       <main className="h-[calc(100vh-73px)] overflow-hidden">
-        {activeTab === "process" ? (
+        {userData?.isActive === false && userData?.role !== "admin" ? (
+          <div className="h-full flex items-center justify-center bg-slate-50 p-8">
+            <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-10 text-center space-y-6 border border-red-100 animate-in fade-in zoom-in duration-300">
+              <div className="w-20 h-20 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                <Ban className="w-10 h-10" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-slate-900">Account Blocked</h2>
+                <p className="text-slate-500">Your access to Telus Digital AI has been suspended by the administrator. Please contact support if you believe this is a mistake.</p>
+              </div>
+              <div className="pt-4">
+                <button 
+                  onClick={handleLogout}
+                  className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+                >
+                  Sign Out
+                </button>
+              </div>
+              <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Error Code: USER_SUSPENDED</p>
+            </div>
+          </div>
+        ) : activeTab === "process" ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
             {/* Left Section: Upload & Preview */}
             <section className="p-8 overflow-y-auto border-r border-slate-200 bg-white">

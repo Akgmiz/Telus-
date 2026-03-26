@@ -32,6 +32,12 @@ service cloud.firestore {
           (request.auth.token.email == "anuj06993@gmail.com" && request.auth.token.email_verified == true));
     }
 
+    function isActive() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isActive == true || 
+         request.auth.token.email == "anuj06993@gmail.com");
+    }
+
     function isValidUser(data) {
       return data.keys().hasAll(['email', 'isActive', 'role']) &&
              data.email is string &&
@@ -53,7 +59,7 @@ service cloud.firestore {
       
       // Allow users to update their own profile (but not their role or isActive status)
       // Allow manager to update anything
-      allow update: if (isOwner(userId) && isValidUser(request.resource.data) && 
+      allow update: if (isActive() && isOwner(userId) && isValidUser(request.resource.data) && 
                         request.resource.data.role == resource.data.role && 
                         request.resource.data.isActive == resource.data.isActive) || 
                       isManager();
